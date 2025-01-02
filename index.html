@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Grid with Names</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 30%;
+            max-width: 1200px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .grid-item {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f7f3f3;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-item span {
+            margin-top: 5px;
+            color: #000;
+            font-size: 14px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        #download-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #download-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Images to Create a Grid</h1>
+        <input type="file" id="image-upload" multiple accept="image/*">
+        <div class="grid" id="image-grid"></div>
+        <button id="download-btn">Download as PNG</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const imageUpload = document.getElementById('image-upload');
+        const imageGrid = document.getElementById('image-grid');
+        const downloadBtn = document.getElementById('download-btn');
+
+        imageUpload.addEventListener('change', (event) => {
+            const files = event.target.files;
+            imageGrid.innerHTML = ''; // Clear the grid
+
+            const totalImages = files.length;
+            const columns = Math.ceil(Math.sqrt(totalImages));
+            imageGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+
+            Array.from(files).forEach((file) => {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const gridItem = document.createElement('div');
+                    gridItem.classList.add('grid-item');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+
+                    const span = document.createElement('span');
+                    span.textContent = file.name;
+
+                    gridItem.appendChild(img);
+                    gridItem.appendChild(span);
+                    imageGrid.appendChild(gridItem);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            html2canvas(imageGrid).then((canvas) => {
+                const link = document.createElement('a');
+                link.download = 'image-grid.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
